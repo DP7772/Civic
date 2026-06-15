@@ -1,0 +1,964 @@
+:root {
+    --primary: #064e3b;
+    --mint: #10b981;
+    --slate: #334155;
+    --glass: rgba(255, 255, 255, 0.82);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; }
+body { background: #f0f4f0; color: var(--slate); overflow-x: hidden; padding: 20px; line-height: 1.6; }
+
+/* Mesh Background */
+.bg-gradient-mesh {
+    position: fixed; inset: 0; z-index: -1;
+    background-image: radial-gradient(at 0% 0%, hsla(161,64%,85%,1) 0, transparent 50%), 
+                      radial-gradient(at 100% 100%, hsla(158,64%,90%,1) 0, transparent 50%);
+}
+
+.container { max-width: 1100px; margin: 0 auto; }
+
+/* Glass Cards */
+.glass-card {
+    background: var(--glass);
+    backdrop-filter: blur(14px);
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    border-radius: 30px; padding: 45px; box-shadow: 0 20px 40px rgba(0,0,0,0.03); margin-bottom: 25px;
+}
+
+/* Navbar & Executive Button Animation */
+.navbar { display: flex; justify-content: space-between; align-items: center; padding: 15px 40px; position: sticky; top: 20px; z-index: 1000; }
+.logo { display: flex; align-items: center; gap: 10px; font-weight: 800; color: var(--primary); font-size: 1.3rem; }
+
+/* Executive Portal Button (Double-Fill Animation) */
+.btn-outline {
+    position: relative;
+    border: 2px solid var(--primary);
+    color: var(--primary);
+    background: transparent;
+    padding: 10px 24px;
+    border-radius: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    overflow: hidden;
+    z-index: 1;
+    transition: color 0.4s ease;
+}
+
+.btn-outline::before, .btn-outline::after {
+    content: '';
+    position: absolute;
+    width: 0; height: 0;
+    background: var(--primary);
+    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: -1;
+}
+.btn-outline::before { top: 0; left: 0; }
+.btn-outline::after { bottom: 0; right: 0; }
+.btn-outline:hover::before, .btn-outline:hover::after { width: 100%; height: 100%; }
+.btn-outline:hover { color: white; }
+
+/* Hero Section */
+.hero { display: flex; align-items: center; gap: 60px; }
+.hero-content { flex: 1.6; }
+.hero-title { font-size: 3.8rem; font-weight: 800; line-height: 1.1; margin-bottom: 20px; color: #0f172a; }
+.hero-title span { color: var(--mint); }
+.hero-description { font-size: 1.25rem; font-weight: 400; color: #475569; max-width: 90%; margin-bottom: 30px; }
+.hero-image img { width: 100%; border-radius: 24px; box-shadow: 0 15px 30px rgba(0,0,0,0.08); }
+
+/* Flash Cards */
+.interactive-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 25px; margin-top: 40px; }
+.flash-card { height: 260px; perspective: 1500px; }
+.card-inner { position: relative; width: 100%; height: 100%; transition: transform 1.1s cubic-bezier(0.4, 0, 0.2, 1); transform-style: preserve-3d; cursor: pointer; }
+.flash-card:hover .card-inner { transform: rotateY(180deg); }
+.card-front, .card-back { position: absolute; width: 100%; height: 100%; backface-visibility: hidden; border-radius: 20px; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 30px; text-align: center; }
+.card-front { background: white; border: 1px solid #e2e8f0; }
+.card-back { background: var(--primary); color: white; transform: rotateY(180deg); }
+
+/* Lifecycle Section */
+.lifecycle-list { margin-top: 40px; max-width: 800px; margin-left: auto; margin-right: auto; }
+.lifecycle-item { display: flex; gap: 30px; align-items: flex-start; margin-bottom: 40px; }
+.node { width: 50px; height: 50px; background: var(--primary); color: white; border-radius: 15px; display: flex; align-items: center; justify-content: center; font-weight: 800; flex-shrink: 0; box-shadow: 0 8px 15px rgba(6, 78, 59, 0.2); }
+
+/* Popup Overlays (Water-Glassmorphism) */
+.overlay-base {
+    display: none; position: fixed; inset: 0;
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(10px); z-index: 6000;
+    align-items: center; justify-content: center;
+    opacity: 0; transition: opacity 0.9s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.overlay-base.active { display: flex; opacity: 1; }
+
+.glass-popup {
+    background: rgba(255, 255, 255, 0.3);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    border-radius: 40px; width: 450px; padding: 50px;
+    position: relative; box-shadow: 0 25px 50px rgba(0,0,0,0.06);
+    transform: scale(0.85); opacity: 0;
+    transition: transform 0.9s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.9s ease;
+}
+
+.overlay-base.active .glass-popup { transform: scale(1); opacity: 1; }
+.overlay-base.closing { opacity: 0; }
+.overlay-base.closing .glass-popup { transform: scale(0.85); opacity: 0; }
+
+.close-x { position: absolute; right: 25px; top: 25px; cursor: pointer; color: var(--primary); z-index: 10; transition: 0.3s; }
+.close-x:hover { color: var(--mint); transform: scale(1.1); }
+
+/* Browser Password Eye Hide */
+input::-ms-reveal, input::-ms-clear { display: none; }
+input::-webkit-contacts-auto-fill-button, input::-webkit-credentials-auto-fill-button { visibility: hidden; display: none !important; pointer-events: none; }
+
+.pass-box { position: relative; }
+.toggle-eye {
+    position: absolute; right: 15px; top: 50%; transform: translateY(-50%);
+    cursor: pointer; color: var(--primary); opacity: 0.6; z-index: 10; transition: 0.3s;
+}
+.toggle-eye:hover { opacity: 1; transform: translateY(-50%) scale(1.1); }
+
+/* Form Elements */
+.input-box { margin-bottom: 18px; position: relative; }
+.input-box input {
+    width: 100%; padding: 14px 18px; border-radius: 14px;
+    border: 1px solid rgba(255,255,255,0.4); background: rgba(255,255,255,0.4);
+    color: var(--primary); font-size: 1rem; outline: none; padding-right: 45px;
+}
+.icon-primary-shield { width: 50px; height: 50px; color: var(--primary); background: #dcfce7; padding: 10px; border-radius: 50%; margin-bottom: 10px; }
+
+/* Switches & Buttons */
+.toggle-container { display: flex; align-items: center; justify-content: center; gap: 15px; margin-bottom: 30px; font-weight: 800; color: var(--primary); }
+.switch { position: relative; width: 55px; height: 28px; }
+.switch input { opacity: 0; width: 0; height: 0; }
+.slider { position: absolute; cursor: pointer; inset: 0; background: #cbd5e1; border-radius: 30px; transition: 0.4s; }
+.slider:before { position: absolute; content: ""; height: 20px; width: 20px; left: 4px; bottom: 4px; background: white; border-radius: 50%; transition: 0.4s; }
+input:checked + .slider { background: var(--mint); }
+input:checked + .slider:before { transform: translateX(27px); }
+
+.btn-main { background: var(--primary); color: white; border: none; padding: 16px 36px; border-radius: 16px; font-weight: 700; cursor: pointer; transition: 0.3s; width: 100%; }
+.btn-main:hover { transform: translateY(-3px); box-shadow: 0 12px 25px rgba(6, 78, 59, 0.2); }
+
+/* Executive Footer */
+.executive-footer { padding: 60px 80px 40px; margin-top: 60px; }
+.footer-grid { display: flex; justify-content: space-between; border-bottom: 1px solid #e2e8f0; padding-bottom: 40px; }
+.footer-links { display: flex; gap: 60px; }
+.link-col h6 { color: var(--primary); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 15px; }
+.link-col a { display: block; text-decoration: none; color: #475569; font-size: 0.9rem; margin-bottom: 8px; font-weight: 600; }
+.footer-bottom { display: flex; justify-content: space-between; align-items: center; margin-top: 30px; font-size: 0.85rem; color: #94a3b8; }
+
+
+
+/* Dashboard & Welcome Transition (Tere style se match karta hua) */
+.welcome-screen {
+    position: fixed; inset: 0; background: var(--primary); z-index: 9999;
+    display: none; flex-direction: column; align-items: center; justify-content: center;
+    color: white; opacity: 0; transition: opacity 0.8s ease;
+}
+
+.btn-continue {
+    position: fixed; bottom: 50px; right: 50px; background: var(--mint); color: white;
+    border: none; padding: 15px 35px; border-radius: 50px; cursor: pointer; font-weight: 800;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3); transition: 0.3s;
+}
+
+.dashboard-container { display: none; opacity: 0; transition: 1s ease; max-width: 1200px; margin: 0 auto; padding-top: 20px; }
+
+.avatar { 
+    width: 45px; height: 45px; background: var(--primary); color: white; 
+    border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    font-weight: 800; cursor: pointer; border: 2px solid var(--mint);
+}
+
+.profile-slide {
+    position: fixed; bottom: -100%; right: 20px; width: 35%; height: 75%;
+    z-index: 8000; transition: bottom 0.9s cubic-bezier(0.4, 0, 0.2, 1);
+    padding: 40px; box-shadow: 0 -10px 40px rgba(0,0,0,0.1);
+}
+
+.profile-slide.active { bottom: 20px; }
+
+.fab-btn {
+    position: fixed; bottom: 30px; left: 30px; width: 65px; height: 65px;
+    background: var(--glass); backdrop-filter: blur(10px); border: 2px solid var(--primary);
+    border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center;
+    color: var(--primary); box-shadow: 0 10px 25px rgba(0,0,0,0.1); transition: 0.3s;
+}
+
+.notif-box.new-update { color: #ef4444; position: relative; }
+.notif-box.new-update::after { content: ''; position: absolute; top: -2px; right: -2px; width: 8px; height: 8px; background: red; border-radius: 50%; }
+
+/* Content Fade-in effect */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(5px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+#profileContentView, #issueFeed, #resolvedFeed {
+    transition: opacity 0.4s ease;
+}
+
+
+/* --- SIGN OUT BUTTON (Red Corner Fill) --- */
+.btn-signout {
+    position: relative;
+    background: transparent;
+    border: 1px solid #ef4444;
+    color: #ef4444;
+    padding: 8px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 700;
+    overflow: hidden; /* Bahar nikalta color rokne ke liye */
+    transition: color 0.4s ease;
+    z-index: 1;
+}
+
+.btn-signout span {
+    position: relative;
+    z-index: 2; /* Text hamesha color ke upar rahega */
+}
+
+/* Red corners create karna */
+.btn-signout::before,
+.btn-signout::after {
+    content: '';
+    position: absolute;
+    width: 0;
+    height: 0;
+    background: #ef4444; /* Red color fill */
+    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: -1;
+}
+
+/* Left-Bottom corner */
+.btn-signout::before {
+    bottom: 0;
+    left: 0;
+}
+
+/* Right-Top corner */
+.btn-signout::after {
+    top: 0;
+    right: 0;
+}
+
+/* Hover par dono center mein milenge */
+.btn-signout:hover::before,
+.btn-signout:hover::after {
+    width: 100%;
+    height: 100%;
+}
+
+.btn-signout:hover {
+    color: white; /* Text white ho jaye background red hote hi */
+}
+
+
+/* --- PENCIL FAB (Circular Theme Fill) --- */
+.fab-btn {
+    position: fixed;
+    bottom: 30px;
+    left: 30px;
+    width: 65px;
+    height: 65px;
+    background: var(--glass); /* Default glass look */
+    backdrop-filter: blur(10px);
+    border: 2px solid var(--primary);
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--primary);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    overflow: hidden;
+    z-index: 5000;
+    transition: color 0.4s ease, transform 0.3s ease;
+}
+
+/* Circular fill from behind */
+.fab-btn::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    background: var(--primary); /* Theme based color */
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    transition: width 0.5s ease, height 0.5s ease;
+    z-index: -1;
+}
+
+.fab-btn:hover::before {
+    width: 150%; /* Circle zoom effect */
+    height: 150%;
+}
+
+.fab-btn:hover {
+    color: white;
+    transform: scale(1.1); /* Halka sa zoom bhi */
+}
+
+.fab-btn svg {
+    position: relative;
+    z-index: 2;
+}
+
+
+/* Dashboard Specific Tabs */
+.dash-main-tab {
+    background: transparent;
+    border: none;
+    padding: 10px 5px;
+    font-weight: 700;
+    color: var(--slate);
+    cursor: pointer;
+    transition: 0.4s;
+    border-bottom: 3px solid transparent;
+    font-size: 1rem;
+}
+
+.dash-main-tab.active {
+    color: var(--primary) !important;
+    border-bottom: 3px solid var(--primary) !important;
+}
+
+.status-text {
+    color: #94a3b8;
+    font-style: italic;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+
+/* --- SCROLL VIEWPORT (Isko index.html mein globalFeedContent par lagao) --- */
+#globalFeedContent {
+    max-height: 520px; /* Ek row ki height approx */
+    overflow-y: auto;
+    scroll-snap-type: y mandatory; /* Scroll ko sets mein snap karega */
+    scrollbar-width: none; /* Scrollbar hide */
+    padding: 10px 0;
+}
+
+#globalFeedContent::-webkit-scrollbar {
+    display: none; /* Chrome/Safari ke liye hide */
+}
+
+/* --- POSTS GRID CONTAINER (Indepenent 3-Column) --- */
+.posts-grid-container {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr); 
+    gap: 25px;
+    width: 100%;
+}
+
+/* --- UPDATED ISSUE CARD (With Snap Align) --- */
+.issue-card {
+    scroll-snap-align: start; /* Har row screen ke top pe snap hogi */
+    width: 100%; 
+    height: 480px; 
+    background: #ffffff;
+    border-radius: 28px;
+    border: 1.5px solid #cbd5e1; 
+    box-shadow: 0 4px 15px rgba(0,0,0,0.02);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+}
+
+/* Hover aur baki animations jo tune likhe hain, wo bilkul sahi hain... */
+.issue-card:hover {
+    transform: translateY(-8px);
+    border-color: var(--primary);
+    box-shadow: 0 20px 40px rgba(15, 23, 42, 0.08);
+}
+
+/* --- IMAGE AREA (28% Width & 40% Height Logic) --- */
+.post-media {
+    width: 94%; /* Space for left/right padding */
+    height: 40%;
+    background: #ffffff; /* White background for picture frame */
+    margin: 12px auto; /* Top/Bottom padding and center align */
+    border-radius: 22px;
+    padding: 4px; /* Image ke charo taraf white space */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.post-media img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 18px;
+}
+
+/* --- TEXT DETAILS (Premium Typography) --- */
+.post-details {
+    padding: 0 20px;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.post-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 10px;
+}
+
+.post-title {
+    font-size: 1.15rem;
+    font-weight: 800;
+    color: var(--primary);
+    letter-spacing: -0.3px;
+}
+
+.post-time {
+    font-size: 0.75rem;
+    color: #94a3b8;
+    font-weight: 600;
+}
+
+.post-desc {
+    font-size: 0.92rem;
+    color: var(--slate);
+    line-height: 1.5;
+    /* Max 50 characters logic via line clamp */
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+/* --- ACTION AREA (10% Height) --- */
+.post-actions {
+    height: 12%; /* Approx 10-12% area */
+    padding: 0 22px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-top: 1px solid #f1f5f9;
+    background: #fafafa;
+}
+
+.shake-hand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    color: #64748b;
+    transition: 0.3s ease;
+}
+
+.shake-hand.reacted {
+    color: var(--mint);
+    transform: scale(1.05);
+}
+
+.shake-hand.reacted i {
+    animation: handshake-wiggle 0.5s ease-in-out;
+}
+
+/* Shake Animation */
+@keyframes handshake-wiggle {
+    0%, 100% { transform: rotate(0deg); }
+    25% { transform: rotate(-15deg); }
+    75% { transform: rotate(15deg); }
+}
+
+/* Contri Button (Hidden look, works on click) */
+.contri-btn {
+    font-weight: 800;
+    color: var(--primary);
+    cursor: pointer;
+    font-size: 0.85rem;
+    padding: 8px 0;
+    transition: 0.3s;
+    opacity: 0.6;
+}
+
+.contri-btn:hover {
+    opacity: 1;
+    letter-spacing: 0.5px;
+}
+
+/*---Add this to CSS for the shake ---*/
+@keyframes shake {
+    0%, 100% { transform: rotate(0deg); }
+    25% { transform: rotate(-10deg); }
+    75% { transform: rotate(10deg); }
+}
+
+/* --- PREMIUM IMAGE VIEWER STYLES --- */
+.image-viewer-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 10000;
+    background: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(15px); /* Piche ka dashboard blur ho jayega */
+    display: none;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.5s ease;
+}
+
+.image-viewer-overlay.active {
+    display: flex;
+    opacity: 1;
+}
+
+.viewer-container {
+    width: 80%;
+    height: 80%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+
+.viewer-container img {
+    max-width: 100%;
+    max-height: 100%;
+    border-radius: 15px;
+    box-shadow: 0 25px 50px rgba(0,0,0,0.5);
+    transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    cursor: zoom-in;
+}
+
+/* Zoom Effect */
+.viewer-container img:active {
+    transform: scale(1.5);
+    cursor: zoom-out;
+}
+
+.close-viewer {
+    position: absolute;
+    top: 30px;
+    right: 40px;
+    font-size: 40px;
+    color: white;
+    cursor: pointer;
+    z-index: 10001;
+    transition: 0.3s;
+}
+
+.close-viewer:hover { transform: scale(1.2); color: var(--mint); }
+
+/* --- PREMIUM REPORT FORM --- */
+.report-popup-premium {
+    background: rgba(255, 255, 255, 0.4) !important;
+    backdrop-filter: blur(30px) saturate(180%) !important;
+    border: 1px solid rgba(255, 255, 255, 0.5) !important;
+    width: 460px !important; padding: 40px !important; border-radius: 35px;
+    box-shadow: 0 30px 60px rgba(0,0,0,0.15);
+}
+
+.input-box-premium { margin-bottom: 18px; }
+.input-box-premium label { display: block; font-size: 0.75rem; font-weight: 800; color: var(--primary); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 1px; }
+
+.input-box-premium input, .input-box-premium textarea, .input-box-premium select {
+    width: 100%; padding: 14px; border-radius: 14px; border: 1px solid rgba(255,255,255,0.4);
+    background: rgba(255,255,255,0.3); color: var(--primary); font-weight: 600; outline: none; transition: 0.3s;
+    font-family: inherit; font-size: 0.95rem;
+}
+.input-box-premium textarea { height: 80px; resize: none; }
+.char-count-box { text-align: right; font-size: 0.7rem; font-weight: 700; color: var(--primary); margin-top: 4px; }
+
+/* FIX FOR IMAGE FIT (Important Update) */
+.upload-zone-premium {
+    width: 100%; height: 160px; border: 2px dashed rgba(6, 78, 59, 0.3); border-radius: 18px;
+    margin-bottom: 20px; cursor: pointer; display: flex; align-items: center; justify-content: center;
+    overflow: hidden; background: rgba(255,255,255,0.2); transition: 0.3s; flex-direction: column; text-align: center;
+    position: relative; /* Zaroori hai image positioning ke liye */
+}
+.upload-zone-premium:hover { background: rgba(255,255,255,0.4); border-color: var(--primary); }
+.upload-zone-premium i { width: 35px; height: 35px; color: var(--primary); margin-bottom: 8px; }
+
+/* Image takes full size correctly */
+.upload-zone-premium img {
+    position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; display: none;
+}
+
+.btn-submit-hidden {
+    background: var(--primary); color: white; border: none; padding: 15px; width: 100%;
+    border-radius: 14px; font-weight: 800; cursor: pointer; display: none; margin-top: 10px;
+    box-shadow: 0 10px 20px rgba(6, 78, 59, 0.2); animation: fadeInUp 0.4s ease;
+}
+
+/* --- IPHONE NOTIFICATION --- */
+.iphone-notif {
+    position: fixed; left: 50%; transform: translateX(-50%); width: 360px;
+    background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.6); border-radius: 30px;
+    padding: 14px 20px; display: none; align-items: center; justify-content: space-between;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.15); z-index: 15000; transition: 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.top-float { top: -100px; }
+.top-float.show { top: 30px; display: flex; }
+.notif-content { display: flex; align-items: center; gap: 12px; font-size: 0.85rem; font-weight: 600; color: #1e293b; }
+.notif-x { cursor: pointer; font-size: 1.4rem; color: #94a3b8; }
+
+/* Permission Modal */
+.overlay-base-sub { 
+    position: fixed; inset: 0; background: rgba(0,0,0,0.3); backdrop-filter: blur(5px); 
+    z-index: 12000; display: none; align-items: center; justify-content: center; 
+}
+.iphone-perm-box { background: white; width: 320px; border-radius: 20px; padding: 25px; text-align: center; box-shadow: 0 20px 40px rgba(0,0,0,0.1); }
+.perm-actions { display: flex; border-top: 1px solid #eee; margin: 0 -25px -25px -25px; }
+.perm-actions button { flex: 1; padding: 18px; border: none; background: transparent; font-weight: 700; cursor: pointer; }
+.btn-allow { color: #007aff; border-left: 1px solid #eee !important; }
+
+@keyframes fadeInUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes slideIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+
+/* --- BOTTOM NOTIFICATION --- */
+.bottom-float {
+    bottom: -100px; /* Hidden initially */
+    top: auto; /* Override top positioning */
+}
+.bottom-float.show {
+    bottom: 30px; /* Float up */
+    display: flex;
+}
+
+/* --- DISABLED CONTRIBUTE BUTTON --- */
+.contri-btn.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    background: #e2e8f0;
+    color: #94a3b8;
+    padding: 5px 10px;
+    border-radius: 5px;
+    pointer-events: none; /* Click disable */
+}
+
+/* --- RESOLVED SECTION STYLES --- */
+
+/* 1. Green Border & Glow for Resolved Cards */
+.issue-card.resolved-card {
+    border: 1.5px solid #10b981; /* Mint Green Border */
+    background: rgba(255, 255, 255, 0.95);
+    box-shadow: 0 10px 30px rgba(16, 185, 129, 0.1); /* Halka Green Shadow */
+}
+
+/* 2. Footer Modification (Buttons Hatana) */
+.resolved-footer {
+    justify-content: center !important; /* Center align text */
+    background: rgba(16, 185, 129, 0.08); /* Light Green BG in footer */
+    border-top: 1px solid #10b981;
+    padding: 15px 0 !important; /* Thoda spacing */
+}
+
+/* 3. Status Badge Design */
+.status-badge {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 800;
+    color: #064e3b; /* Dark Green Text */
+    font-size: 0.95rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.status-badge i {
+    color: #10b981; /* Mint Icon */
+    width: 22px;
+    height: 22px;
+}
+
+/* --- NOTIFICATION BELL STATES --- */
+.notif-box {
+    position: relative;
+    transition: 0.3s;
+}
+
+/* Red Dot for New Notifications */
+.notif-box.has-new::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 10px;
+    height: 10px;
+    background: #ef4444; /* Red */
+    border: 2px solid white;
+    border-radius: 50%;
+    animation: pulse-red 2s infinite;
+}
+
+@keyframes pulse-red {
+    0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+    70% { box-shadow: 0 0 0 6px rgba(239, 68, 68, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+}
+
+/* --- REVEAL OVERLAY (The Magic Circle) --- */
+.notification-reveal-layer {
+    position: absolute; /* Fits inside dashboard container */
+    top: 80px; /* Below Navbar */
+    left: 20px;
+    right: 20px;
+    bottom: 20px;
+    background: linear-gradient(135deg, #0f172a 0%, #064e3b 100%); /* Premium Dark Emerald */
+    border-radius: 30px;
+    z-index: 50; /* Top of everything in dashboard */
+    padding: 40px;
+    
+    /* Animation Logic */
+    clip-path: circle(0% at 90% 5%); /* Starts small near Bell Icon position */
+    transition: clip-path 0.7s cubic-bezier(0.65, 0, 0.35, 1);
+    opacity: 0;
+    pointer-events: none;
+}
+
+.notification-reveal-layer.active {
+    clip-path: circle(150% at 90% 5%); /* Expands to fill */
+    opacity: 1;
+    pointer-events: all;
+}
+
+/* --- CONTENT STYLING --- */
+.notif-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+    padding-bottom: 20px;
+}
+
+.glow-txt {
+    color: white;
+    font-size: 1.8rem;
+    font-weight: 800;
+    text-shadow: 0 0 20px rgba(16, 185, 129, 0.5);
+}
+
+.close-btn-round {
+    background: rgba(255,255,255,0.1);
+    border: none;
+    color: white;
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: 0.3s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.close-btn-round:hover { background: rgba(255,255,255,0.2); transform: rotate(90deg); }
+
+/* --- MOBILE NOTIFICATION CARDS --- */
+.notif-container {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.mobile-notif-card {
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 16px;
+    padding: 16px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    transform: translateY(20px);
+    opacity: 0;
+    transition: 0.4s;
+}
+
+/* Staggered Animation for Items */
+.notification-reveal-layer.active .mobile-notif-card {
+    transform: translateY(0);
+    opacity: 1;
+}
+.notification-reveal-layer.active .mobile-notif-card:nth-child(1) { transition-delay: 0.2s; }
+.notification-reveal-layer.active .mobile-notif-card:nth-child(2) { transition-delay: 0.3s; }
+.notification-reveal-layer.active .mobile-notif-card:nth-child(3) { transition-delay: 0.4s; }
+
+.notif-icon-box {
+    width: 45px;
+    height: 45px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+}
+.notif-icon-box.warn { background: #fff7ed; color: #ea580c; }
+.notif-icon-box.success { background: #f0fdf4; color: #16a34a; }
+.notif-icon-box.info { background: #eff6ff; color: #2563eb; }
+
+.notif-text h4 { font-size: 1rem; color: #1e293b; margin-bottom: 2px; }
+.notif-text p { font-size: 0.85rem; color: #64748b; margin-bottom: 5px; }
+.time-tag { font-size: 0.7rem; font-weight: 700; color: #94a3b8; text-transform: uppercase; }
+
+/* --- PREMIUM STATS CARD STYLES --- */
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* Two columns side by side */
+    gap: 15px;
+    margin: 20px 0; /* Spacing from name and email */
+}
+
+.stat-card {
+    background: rgba(255, 255, 255, 0.6);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.8);
+    padding: 15px;
+    border-radius: 18px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+}
+
+.stat-card:hover {
+    transform: translateY(-5px);
+    background: rgba(255, 255, 255, 0.9);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+}
+
+/* Icons */
+.icon-circle {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 5px;
+}
+
+.icon-circle.gold {
+    background: linear-gradient(135deg, #fef3c7 0%, #fcd34d 100%);
+    color: #b45309; /* Dark Gold Text */
+}
+
+.icon-circle.mint {
+    background: linear-gradient(135deg, #d1fae5 0%, #6ee7b7 100%);
+    color: #064e3b; /* Dark Green Text */
+}
+
+/* Typography */
+.stat-data {
+    text-align: center;
+}
+
+.stat-value {
+    display: block;
+    font-size: 1.6rem;
+    font-weight: 800;
+    line-height: 1.1;
+    margin-bottom: 2px;
+}
+
+.stat-label {
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Text Gradients (Premium Feel) */
+.gradient-gold {
+    background: linear-gradient(135deg, #d97706 0%, #fbbf24 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.gradient-mint {
+    background: linear-gradient(135deg, #059669 0%, #34d399 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+/* --- PROFILE SLIDE STRUCTURE (Fixed Scrolling) --- */
+
+.profile-slide {
+    position: fixed;
+    bottom: -100%;
+    right: 20px;
+    width: 35%;
+    height: 75%; /* Fixed Height zaroori hai */
+    background: rgba(255, 255, 255, 0.95); /* Thoda solid background content ke liye */
+    backdrop-filter: blur(20px);
+    border: 1px solid white;
+    border-radius: 30px;
+    z-index: 8000;
+    transition: bottom 0.6s cubic-bezier(0.19, 1, 0.22, 1);
+    padding: 30px;
+    box-shadow: 0 -10px 40px rgba(0,0,0,0.15);
+    
+    /* FLEXBOX MAGIC FOR SCROLL */
+    display: flex;
+    flex-direction: column;
+}
+
+.profile-slide.active { bottom: 20px; }
+
+/* Header aur Tabs apni jagah fix rahenge */
+.profile-header, .profile-tabs {
+    flex-shrink: 0; 
+}
+
+/* CONTENT WRAPPER (Crucial Fix) */
+#profileContentView {
+    flex-grow: 1;  /* Bachi hui jagah lega */
+    min-height: 0; /* <--- YE HAI MAGIC LINE (Iske bina scroll fail hota hai) */
+    margin-top: 15px;
+    position: relative; /* Popup iske andar position hoga */
+}
+
+/* SCROLLABLE LIST (Hidden Bar + Smooth Scroll) */
+.profile-scroll-list {
+    height: 100%; /* Wrapper ki puri height lega */
+    overflow-y: auto; /* Scroll ON */
+    padding-right: 5px;
+    padding-bottom: 20px;
+    
+    /* Scrollbar Gayab Karne Ka Code */
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none;  /* IE/Edge */
+}
+
+/* Chrome/Safari ke liye scrollbar gayab */
+.profile-scroll-list::-webkit-scrollbar {
+    display: none;
+}
+
+/* --- DETAIL POPUP (Full Cover Logic) --- */
+.profile-detail-layer {
+    position: absolute;
+    inset: 0;
+    background: #f8fafc;
+    z-index: 9000;
+    display: flex;
+    flex-direction: column;
+    padding: 25px;
+    border-radius: 20px; /* Slide ke radius se match */
+    
+    transform: translateY(100%);
+    transition: transform 0.5s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+.profile-detail-layer.open { transform: translateY(0); }

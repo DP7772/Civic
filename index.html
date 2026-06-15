@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CivicPulse | Institutional Accountability</title>
+    <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/2917/2917995.png">
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <style>
+        /* Admin Dashboard Container (Hidden by Default) */
+        #adminDashboardUI {
+            display: none; /* JS will toggle this to 'flex' */
+            width: 100%;
+            height: 100vh;
+            background-color: #0f172a; /* Midnight Blue */
+            color: #f8fafc;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            overflow: hidden;
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 9999;
+        }
+
+        /* Sidebar */
+        .exec-sidebar {
+            width: 280px;
+            background: #1e293b;
+            border-right: 1px solid rgba(255, 255, 255, 0.05);
+            display: flex;
+            flex-direction: column;
+            padding: 2rem 1.5rem;
+            box-shadow: 5px 0 30px rgba(0,0,0,0.2);
+        }
+
+        .exec-avatar-large {
+            width: 90px;
+            height: 90px;
+            background: linear-gradient(135deg, #fbbf24, #d97706); /* Gold Gradient */
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.2rem;
+            font-weight: 800;
+            color: #1e293b;
+            margin: 0 auto 1rem auto;
+            box-shadow: 0 0 20px rgba(251, 191, 36, 0.3);
+            border: 3px solid rgba(255,255,255,0.1);
+        }
+
+        .exec-role {
+            text-align: center;
+            color: #fbbf24;
+            font-size: 0.75rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            font-weight: 700;
+            margin-bottom: 3rem;
+        }
+
+        .exec-menu {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            flex: 1;
+        }
+
+        .exec-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 20px;
+            border-radius: 12px;
+            color: #94a3b8;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .exec-item:hover, .exec-item.active {
+            background: rgba(251, 191, 36, 0.1);
+            color: #fbbf24;
+            transform: translateX(5px);
+        }
+
+        .exec-footer {
+            background: rgba(0, 0, 0, 0.2);
+            padding: 15px;
+            border-radius: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            margin-top: auto;
+        }
+
+        .field-badge {
+            display: inline-block;
+            background: rgba(16, 185, 129, 0.15);
+            color: #10b981;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            margin-top: 8px;
+        }
+
+        .exec-logout {
+            margin-top: 15px;
+            width: 100%;
+            padding: 10px;
+            background: transparent;
+            border: 1px solid #ef4444;
+            color: #ef4444;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: 0.3s;
+        }
+        .exec-logout:hover { background: #ef4444; color: white; }
+
+        /* Main Content */
+        .exec-main {
+            flex: 1;
+            padding: 2rem 3rem;
+            overflow-y: auto;
+            background: #0f172a;
+        }
+
+        .exec-header-title {
+            font-size: 1.8rem;
+            margin-bottom: 2rem;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            padding-bottom: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .exec-empty-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 60vh;
+            color: #64748b;
+            animation: fadeIn 0.6s ease;
+        }
+
+        .exec-empty-icon {
+            width: 80px;
+            height: 80px;
+            margin-bottom: 1.5rem;
+            color: #334155;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
+        }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    </style>
+</head>
+<body>
+
+    <div id="welcomeOverlay" class="welcome-screen">
+        <div class="welcome-content">
+            <h1 class="glow-text" style="color: white; font-size: 3.5rem; font-weight: 800;">CivicPulse Welcomes You</h1>
+            <p style="color: rgba(255,255,255,0.8); font-size: 1.2rem;">Contribute your time to us for a better campus.</p>
+            <button id="continueToDash" class="btn-continue">Continue <i data-lucide="arrow-right"></i></button>
+        </div>
+    </div>
+
+    <div id="landingPage">
+        <div class="bg-gradient-mesh"></div>
+
+        <nav class="navbar glass-card">
+            <div class="logo">
+                <i data-lucide="leaf"></i> <span>CivicPulse</span>
+            </div>
+            <div class="nav-links">
+                <button id="adminBtn" class="btn-outline">Executive Portal</button>
+            </div>
+        </nav>
+
+        <main class="container">
+            <section class="glass-card hero">
+                <div class="hero-content">
+                    <div class="badge-container">
+                        <span class="badge">Next-Gen Governance</span>
+                    </div>
+                    <h1 class="hero-title">Driving Institutional <span>Transparency</span></h1>
+                    <p class="hero-description">
+                        A digital ecosystem designed to <strong>bridge the gap</strong> between campus maintenance and student action through <strong>real-time accountability</strong> and <strong>merit-based rewards</strong>.
+                    </p>
+                    <div class="hero-actions">
+                        <button id="studentLogin" class="btn-main">Authenticate as Student</button>
+                        <div class="live-status">
+                            <span class="pulse-dot"></span> System Live: <span id="liveTime"></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="hero-image">
+                    <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiPi2QDdJlcHv6PrL9pxGlFz_mm3Pol8v9Bl2mfylWm3EJgrtUgf1ZwVkKGuGnVZUvAaJyoJ7npzQlcmD-308PXFN_v90H0NljbcXUTyXyAcSLULMrRbL90J2Z-copyU8fcB23VzlAvgW3GyfoorpeeAJzpsg4zQEgvM4U9OYw-fNQhJVZWlOA_sS7FBgI/s8160/IMG_20240723_121734.jpg" alt="Modern Campus">
+                </div>
+            </section>
+
+            <section class="glass-card section-margin">
+                <div class="section-header">
+                    <h2 class="title-gradient">Engineered for Impact</h2>
+                    <p>Deploying smart-verification to maintain campus excellence.</p>
+                </div>
+                <div class="interactive-grid">
+                    <div class="flash-card">
+                        <div class="card-inner">
+                            <div class="card-front">
+                                <i data-lucide="zap"></i>
+                                <h3>Dynamic Escalation</h3>
+                            </div>
+                            <div class="card-back">
+                                <p>Our 3x priority algorithm ensures that critical failures bypass standard queues for immediate resolution.</p>
+                                <span class="logic-tag">Weighted Logic</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flash-card">
+                        <div class="card-inner">
+                            <div class="card-front">
+                                <i data-lucide="shield-check"></i>
+                                <h3>Integrity Protocol</h3>
+                            </div>
+                            <div class="card-back">
+                                <p>Live-capture and EXIF metadata cross-referencing eliminate spoofing, ensuring absolute data integrity.</p>
+                                <span class="logic-tag">Anti-Fraud</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flash-card">
+                        <div class="card-inner">
+                            <div class="card-front">
+                                <i data-lucide="award"></i>
+                                <h3>Meritocracy Engine</h3>
+                            </div>
+                            <div class="card-back">
+                                <p>Automated reputation settlement rewards civic contributions, building a culture of stewardship.</p>
+                                <span class="logic-tag">Reputation Tokens</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="glass-card section-margin">
+                <h2 class="title-gradient">The Resolution Lifecycle</h2>
+                <div class="lifecycle-list">
+                    <div class="lifecycle-item">
+                        <div class="node">01</div>
+                        <div class="node-content">
+                            <h4>Incident Authentication</h4>
+                            <p>Submit live visual evidence. System implements risk-based deterrents for high-severity claims.</p>
+                        </div>
+                    </div>
+                    <div class="lifecycle-item">
+                        <div class="node">02</div>
+                        <div class="node-content">
+                            <h4>Autonomous Allocation</h4>
+                            <p>Open claiming with automated reset triggers. Tasks remain live until verifiable proof is staged.</p>
+                        </div>
+                    </div>
+                    <div class="lifecycle-item">
+                        <div class="node">03</div>
+                        <div class="node-content">
+                            <h4>Audit & Verification</h4>
+                            <p>Post-resolution assets are audited against timestamps. Administrative oversight ensures quality control.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <footer class="glass-card executive-footer">
+            <div class="footer-grid">
+                <div class="footer-brand">
+                    <div class="logo"><i data-lucide="leaf"></i> CivicPulse</div>
+                    <p>Digital Accountability <br>Institutional Excellence</p>
+                </div>
+                <div class="footer-links">
+                    <div class="link-col">
+                        <h6>Governance</h6>
+                        <a href="#">Privacy Protocol</a>
+                        <a href="#">Terms of Merit</a>
+                    </div>
+                    <div class="link-col">
+                        <h6>Ecosystem</h6>
+                        <a href="#">Hero Leaderboard</a>
+                        <a href="#">Audit Guidelines</a>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>© 2026 CivicPulse Engine. Developed by CivicPulse Team.</p>
+                <div class="social-icons">
+                    <i data-lucide="linkedin"></i>
+                    <i data-lucide="github"></i>
+                </div>
+            </div>
+        </footer>
+
+        <div id="studentModal" class="overlay-base">
+            <div class="glass-popup">
+                <span id="closeStudent" class="close-x"><i data-lucide="x-circle"></i></span>
+                <div class="auth-wrapper">
+                    <div class="toggle-container">
+                        <span class="mode-label">Sign In</span>
+                        <label class="switch">
+                            <input type="checkbox" id="authToggle" checked>
+                            <span class="slider"></span>
+                        </label>
+                        <span class="mode-label">Sign Up</span>
+                    </div>
+                    <div id="authContent" class="auth-content">
+                        <h2 id="authTitle">Create Account</h2>
+                        <form id="studentAuthForm">
+                            <div id="signupOnly">
+                                <div class="input-box"><input type="text" placeholder="Full Name" id="regName"></div>
+                                <div class="input-box"><input type="email" placeholder="Campus Email" id="regEmail"></div>
+                            </div>
+                            <div class="input-box"><input type="text" placeholder="User ID" id="authUserID" required></div>
+                            <div class="input-box pass-box">
+                                <input type="password" placeholder="Password" id="authPass" required>
+                                <i data-lucide="eye" class="toggle-eye" id="eyeIcon"></i>
+                            </div>
+                            <button type="submit" class="btn-main" id="authSubmitBtn">Initialize Account</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="adminPortalModal" class="overlay-base">
+            <div class="glass-popup">
+                <span id="closeAdminPortal" class="close-x"><i data-lucide="x-circle"></i></span>
+                <div class="auth-wrapper">
+                    <div class="modal-header-box" style="text-align: center; margin-bottom: 20px;">
+                        <i data-lucide="shield-check" class="icon-primary-shield"></i>
+                        <h2>Executive Access</h2>
+                        <p style="font-size: 0.9rem; color: #475569;">Institutional Portal Authentication</p>
+                    </div>
+                    <form id="adminAuthForm">
+                        <div class="input-box"><input type="email" id="portalAdminEmail" placeholder="Official Email" required></div>
+                        <div class="input-box pass-box">
+                            <input type="password" id="portalAdminPass" placeholder="Access Key" required>
+                            <i data-lucide="eye" class="toggle-eye" id="adminEyeIcon"></i>
+                        </div>
+                        <button type="submit" class="btn-main">Authorize Portal</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="dashboardUI" class="dashboard-container">
+        <nav class="dash-nav glass-card" style="display: flex; justify-content: space-between; align-items: center; padding: 15px 30px;">
+            <div class="logo" id="refreshFeed" style="cursor: pointer;"><i data-lucide="leaf"></i> <span>CivicPulse</span></div>
+            <div class="nav-right" style="display:flex; align-items:center; gap:20px;">
+                <div id="notifIcon" class="notif-box" style="cursor: pointer;"><i data-lucide="bell"></i></div>
+               <button id="signOutBtn" class="btn-signout"><span>Sign Out</span></button>
+                <div id="userAvatar" class="avatar">AM</div>
+            </div>
+        </nav>
+        
+        <div class="dash-tabs-wrapper" style="display: flex; gap: 25px; margin-top: 25px; border-bottom: 1px solid rgba(0,0,0,0.05); padding-bottom: 10px; padding-left: 20px;">
+            <button class="dash-main-tab active" id="btnGlobalIssues">Active Issues Feed</button>
+            <button class="dash-main-tab" id="btnGlobalResolved">Resolved Master-Gallery</button>
+        </div>
+
+        <div id="globalDashboardView" style="margin-top: 20px; animation: fadeIn 0.6s ease; padding: 0 20px;">
+            <div class="glass-card" style="padding: 30px;">
+                <h3 id="globalFeedTitle">Global Issue Posts</h3>
+                <div id="globalFeedContent" class="feed-viewport" style="margin-top: 15px;">
+            
+                <div id="activeFeedWrapper">
+                    <div class="posts-grid-container" id="postsGrid">
+                        </div>
+                </div>
+
+                <div id="resolvedFeedWrapper" style="display: none;">
+                    <div class="posts-grid-container" id="resolvedGrid">
+                        </div>
+                </div>
+
+            </div>
+            </div>
+        </div>
+
+        <button class="fab-btn" id="pencilFAB"><i data-lucide="pencil"></i></button>
+
+        <div id="profileSlide" class="profile-slide glass-card">
+            <span id="closeProfile" class="close-x"><i data-lucide="x"></i></span>
+            <div class="profile-header" style="text-align: center;">
+                <div class="large-avatar" style="width: 80px; height: 80px; background: var(--primary); border-radius: 50%; margin: 0 auto 15px; display: flex; align-items: center; justify-content: center; color: white; font-size: 2rem;">AM</div>
+                <h3>Akash Maurya</h3>
+                <div class="stats-grid">
+                    <div class="stat-card credit-card">
+                        <div class="icon-circle gold"><i data-lucide="coins"></i></div>
+                        <div class="stat-data">
+                            <span class="stat-value gradient-gold">0</span>
+                            <span class="stat-label">Civic Credits</span>
+                        </div>
+                    </div>
+                    <div class="stat-card impact-card">
+                        <div class="icon-circle mint"><i data-lucide="trophy"></i></div>
+                        <div class="stat-data">
+                            <span class="stat-value gradient-mint">0</span>
+                            <span class="stat-label">Impact Score</span>
+                        </div>
+                    </div>
+                </div>
+                <p style="color: #64748b; font-size: 0.9rem; margin-bottom: 20px;">akash.std@college.edu</p>
+            </div>
+            <div class="profile-tabs" style="display: flex; gap: 10px; margin-top: 10px; border-bottom: 1px solid #eee;">
+                <button class="tab-btn active" id="btnMyPosts" style="background:transparent; border:none; padding:10px; font-weight:700; color:var(--primary); border-bottom:2px solid var(--primary); cursor:pointer;">My Posts</button>
+                <button class="tab-btn" id="btnMyResolved" style="background:transparent; border:none; padding:10px; font-weight:700; color:var(--slate); cursor:pointer;">Resolved</button>
+            </div>
+            <div id="profileContentView" style="margin-top: 15px; flex-grow: 1; overflow: hidden;">
+                <div id="profileFeedContainer" class="profile-scroll-list"></div>
+            </div>
+            <div id="profileDetailOverlay" class="profile-detail-layer">
+                <div class="detail-header-row">
+                    <h4 class="title-gradient" style="font-size: 1.2rem;">Post Details</h4>
+                    <button id="closeDetailBtn" class="close-rotater"><i data-lucide="x"></i></button>
+                </div>
+                <div class="detail-card-wrapper">
+                    <div class="issue-card" style="height: auto; min-height: 400px; border: none; box-shadow: none; background: transparent;">
+                        <div class="post-media" style="height: 250px;">
+                            <img id="detailImg" src="" style="width: 100%; height: 100%; object-fit: cover; border-radius: 18px;">
+                        </div>
+                        <div class="post-details">
+                            <div class="post-header">
+                                <h4 id="detailTitle" class="post-title" style="font-size: 1.3rem;">Title Here</h4>
+                                <span id="detailTime" class="post-time">Time</span>
+                            </div>
+                            <p id="detailDesc" class="post-desc" style="-webkit-line-clamp: unset; font-size: 1rem;">Description goes here...</p>
+                        </div>
+                        <div class="post-actions" style="justify-content: center; background: rgba(0,0,0,0.02); margin-top: 20px; border-radius: 12px;">
+                            <span id="detailStatus" class="status-badge">
+                                <i data-lucide="activity"></i> Status: Active
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="notifOverlay" class="notification-reveal-layer">
+            <div class="notif-header">
+                <h2 class="glow-txt">Updates & Alerts</h2>
+                <button id="closeNotifOverlay" class="close-btn-round"><i data-lucide="x"></i></button>
+            </div>
+            <div class="notif-container"></div>
+        </div>
+
+        <div id="imageViewer" class="image-viewer-overlay">
+            <span class="close-viewer">&times;</span>
+            <div class="viewer-container">
+                <img id="fullImage" src="" alt="Zoomable Evidence">
+            </div>
+        </div>
+
+        <div id="reportModal" class="overlay-base">
+            <div class="glass-popup report-popup-premium">
+                <span id="closeReportBtn" class="close-x"><i data-lucide="x-circle"></i></span>
+                <div class="form-header" style="text-align: center; margin-bottom: 25px;">
+                    <h2 class="title-gradient">Incident Report</h2>
+                    <p style="font-size: 0.85rem; color: #475569;">Secure Campus Authentication</p>
+                </div>
+                <form id="issueForm">
+                    <div class="input-box-premium">
+                        <label>Issue Title</label>
+                        <input type="text" id="issueTitle" placeholder="Title (min 5 char)" required minlength="5">
+                    </div>
+                    <div class="input-box-premium">
+                        <label>Details</label>
+                        <textarea id="issueDesc" placeholder="Describe problem (min 10 char)" maxlength="150" required minlength="10"></textarea>
+                        <div class="char-count-box"><span id="currentChar">0</span>/150</div>
+                    </div>
+                    <div class="upload-zone-premium" id="cameraTrigger">
+                        <input type="file" id="issueImage" accept="image/*" capture="environment" hidden>
+                        <div id="uploadContent">
+                            <i data-lucide="aperture"></i>
+                            <p>Tap for Live Capture</p>
+                        </div>
+                        <img id="cameraPreview" src="#" alt="Preview">
+                    </div>
+                    <div class="input-box-premium">
+                        <label>Priority</label>
+                        <select id="issuePriority" required>
+                            <option value="" disabled selected>Select Severity</option>
+                            <option value="normal">Standard</option>
+                            <option value="critical">Critical (Verify ID)</option>
+                        </select>
+                    </div>
+                    <div id="aadharSection" style="display:none; animation: slideIn 0.4s ease;">
+                        <div class="input-box-premium">
+                            <label>Aadhar Number</label>
+                            <input type="text" id="aadharNum" placeholder="12 Digit Number" maxlength="12">
+                        </div>
+                    </div>
+                    <button type="submit" id="finalSubmitBtn" class="btn-submit-hidden">Submit Incident</button>
+                </form>
+            </div>
+        </div>
+
+        <div id="topNotif" class="iphone-notif top-float">
+            <div class="notif-content">
+                <i data-lucide="info"></i>
+                <p id="notifText">Notification</p>
+            </div>
+            <span onclick="closeTopNotif()" class="notif-x">&times;</span>
+        </div>
+
+        <div id="contriModal" class="overlay-base">
+            <div class="glass-popup report-popup-premium" style="width: 400px; text-align: center;">
+                <span id="closeContriBtn" class="close-x"><i data-lucide="x-circle"></i></span>
+                <div class="form-header" style="margin-bottom: 20px;">
+                    <h2 class="title-gradient">Verify Contribution</h2>
+                    <p style="font-size: 0.85rem; color: #475569;">Upload proof of work</p>
+                </div>
+                <form id="contriForm">
+                    <div class="upload-zone-premium" id="contriCamTrigger">
+                        <input type="file" id="contriImage" accept="image/*" capture="environment" hidden>
+                        <div id="contriUploadContent">
+                            <i data-lucide="camera"></i>
+                            <p>Tap to Upload Proof</p>
+                        </div>
+                        <img id="contriPreview" src="#" alt="Proof">
+                    </div>
+                    <button type="submit" id="contriSubmitBtn" class="btn-submit-hidden">Submit Proof</button>
+                </form>
+            </div>
+        </div>
+
+        <div id="bottomNotif" class="iphone-notif bottom-float">
+            <div class="notif-content">
+                <i data-lucide="check-circle" style="color: var(--mint);"></i>
+                <p>Thanks For Contri! Verifying...</p>
+            </div>
+            <span onclick="closeBottomNotif()" class="notif-x">&times;</span>
+        </div>
+    </div>
+
+    <div id="adminDashboardUI">
+        <aside class="exec-sidebar">
+            <div class="sidebar-top">
+                <div class="exec-avatar-large" id="sidebarAvatar">A</div>
+                <div class="exec-role">Executive Panel</div>
+            </div>
+            <nav class="exec-menu">
+                <div class="exec-item active" onclick="switchTab('student', this)">
+                    <i data-lucide="users"></i> <span>Students</span>
+                </div>
+                <div class="exec-item" onclick="switchTab('posts', this)">
+                    <i data-lucide="file-text"></i> <span>Posts</span>
+                </div>
+                <div class="exec-item" onclick="switchTab('contribution', this)">
+                    <i data-lucide="target"></i> <span>Contribution</span>
+                </div>
+            </nav>
+            <div class="exec-footer">
+                <div style="margin-bottom: 10px;">
+                    <div style="font-size: 1rem; font-weight: 600; color: #f8fafc;" id="profileName">Admin</div>
+                    <div style="font-size: 0.75rem; color: #94a3b8;" id="profileEmail">admin@college.edu</div>
+                    <div class="field-badge" id="fieldBadge">IT DEPT</div>
+                </div>
+                <button class="exec-logout" onclick="logoutAdmin()">
+                    <i data-lucide="log-out" width="16"></i> Terminate
+                </button>
+            </div>
+        </aside>
+
+        <main class="exec-main">
+            <header class="exec-header-title">
+                <h2 id="pageTitle">Student Database</h2>
+                <div style="font-size: 0.9rem; color: #fbbf24;">
+                    <i data-lucide="shield-check" style="vertical-align: middle; width: 18px;"></i> Secure Access
+                </div>
+            </header>
+
+            <div id="contentArea">
+                <div class="exec-empty-state">
+                    <i data-lucide="user-x" class="exec-empty-icon"></i>
+                    <h3>No Registered Students</h3>
+                    <p>Waiting for students to initialize accounts.</p>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        lucide.createIcons();
+
+        // ----------------------------------------------------
+        // ADMIN DASHBOARD INTERNAL LOGIC (Tab Switching etc.)
+        // ----------------------------------------------------
+        
+        function switchTab(tabName, element) {
+            // UI Update
+            document.querySelectorAll('.exec-item').forEach(item => item.classList.remove('active'));
+            element.classList.add('active');
+
+            const contentArea = document.getElementById("contentArea");
+            const pageTitle = document.getElementById("pageTitle");
+
+            contentArea.style.opacity = '0'; // Fade out
+
+            setTimeout(() => {
+                if (tabName === 'student') {
+                    pageTitle.innerText = "Student Database";
+                    contentArea.innerHTML = `
+                        <div class="exec-empty-state">
+                            <i data-lucide="user-x" class="exec-empty-icon"></i>
+                            <h3>No Registered Students</h3>
+                            <p>Waiting for students to initialize accounts.</p>
+                        </div>`;
+                } else if (tabName === 'posts') {
+                    pageTitle.innerText = "Post Management";
+                    contentArea.innerHTML = `
+                        <div class="exec-empty-state">
+                            <i data-lucide="inbox" class="exec-empty-icon"></i>
+                            <h3>No Active Posts</h3>
+                            <p>Select a different category to view details.</p>
+                        </div>`;
+                } else if (tabName === 'contribution') {
+                    pageTitle.innerText = "Contribution Logs";
+                    contentArea.innerHTML = `
+                        <div class="exec-empty-state">
+                            <i data-lucide="layers" class="exec-empty-icon"></i>
+                            <h3>No Contributions Yet</h3>
+                            <p>Community engagement data will appear here.</p>
+                        </div>`;
+                }
+                
+                lucide.createIcons();
+                contentArea.style.opacity = '1'; // Fade in
+            }, 200);
+        }
+
+        function logoutAdmin() {
+            if(confirm("Terminate Secure Session?")) {
+                localStorage.removeItem("civicAdminLogged");
+                location.reload(); // Reload to go back to Landing Page
+            }
+        }
+    </script>
+</body>
+</html>
+
+
+
+
+
